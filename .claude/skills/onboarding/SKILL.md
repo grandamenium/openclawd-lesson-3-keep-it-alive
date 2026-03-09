@@ -287,6 +287,37 @@ Tell the user (keep it brief):
 
 **generate-launchd.sh** - Creates the macOS config file that tells launchd to manage your agent. Run once to set up."
 
+#### 9d: Create .env file
+
+**This MUST happen before starting launchd.** The wrapper script sources `.env` on startup, so Telegram credentials must be in place first.
+
+Check if `.env` already exists in the project root. If not, create it:
+
+```bash
+# Read the current values from the user's shell environment
+TELEGRAM_BOT_TOKEN_VALUE=$(printenv TELEGRAM_BOT_TOKEN)
+TELEGRAM_ALLOWED_USER_VALUE=$(printenv TELEGRAM_ALLOWED_USER)
+```
+
+If both values exist in the environment, write them to `.env`:
+```
+TELEGRAM_BOT_TOKEN={value}
+TELEGRAM_ALLOWED_USER={value}
+```
+
+If either value is missing, ask the user via Telegram:
+- "I need your Telegram bot token and user ID to create the .env file. What's your TELEGRAM_BOT_TOKEN?" (if missing)
+- "What's your TELEGRAM_ALLOWED_USER (your Telegram user ID)?" (if missing)
+
+Once you have both values, write the `.env` file in the project root.
+
+Tell the user: "I've created .env with your Telegram credentials. The wrapper script loads this on startup so your agent can communicate."
+
+**Also verify `.env` is in `.gitignore`.** If `.gitignore` doesn't exist or doesn't include `.env`, create/update it:
+```
+.env
+```
+
 ---
 
 ### Step 10: Test with Short Timeout
@@ -308,18 +339,23 @@ Tell user: "I've set the session timeout to 3 minutes for testing."
 
 #### 10b: Generate and load launchd config
 
-Run:
+Run these commands directly (do NOT ask the user to run them - execute them yourself):
+
 ```bash
 bash scripts/generate-launchd.sh "$(pwd)"
 ```
 
-Then tell the user to run these commands in their terminal (they need to do this manually since it requires system permissions):
-
-```
+Then load the service:
+```bash
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.my-agent.plist
 ```
 
-Tell them: "Run that command in your terminal. It registers your agent with macOS."
+If bootstrap fails because it's already loaded, bootout first then bootstrap:
+```bash
+launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.my-agent.plist 2>/dev/null; launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.my-agent.plist
+```
+
+Tell the user: "I've generated the launchd config and registered your agent with macOS."
 
 #### 10c: Verify it started
 
@@ -389,11 +425,12 @@ For a 24/7 agent checking Telegram every minute and running heartbeats every 30 
 
 #### 11c: Restart with production config
 
-Tell user to run:
+Run these commands directly (do NOT ask the user - execute them yourself):
+```bash
+launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.my-agent.plist 2>/dev/null; launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.my-agent.plist
 ```
-launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.my-agent.plist
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.my-agent.plist
-```
+
+Tell the user: "I've restarted your agent with production config."
 
 #### 11d: Verify
 
@@ -449,4 +486,5 @@ Close every terminal on your computer. Open a new one tomorrow. I'll still be he
 - If the user seems unsure about an answer, give examples to help them decide
 - **Detect existing setup and skip completed steps** - don't redo lesson 1+2 work
 - All interaction happens via Telegram (check-telegram.sh / send-telegram.sh)
-- The user needs to run launchctl commands manually in their terminal (system permission required)
+- Execute launchctl commands directly - do NOT ask the user to run them manually
+- Always create .env with Telegram credentials BEFORE starting launchd
