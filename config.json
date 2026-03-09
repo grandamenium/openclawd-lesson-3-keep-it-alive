@@ -1,0 +1,13 @@
+{
+  "startup_delay": 3,
+  "crons": [
+    {
+      "interval": "1m",
+      "prompt": "Check Telegram for new messages: bash .claude/skills/telegram-bot/check-telegram.sh — If there are messages, respond to each one in character. If no messages, do nothing."
+    },
+    {
+      "interval": "30m",
+      "prompt": "Read HEARTBEAT.md and perform each task listed. Also read today's memory file at memory/{today's date}.md for context. Update the memory file with anything notable."
+    }
+  ]
+}
