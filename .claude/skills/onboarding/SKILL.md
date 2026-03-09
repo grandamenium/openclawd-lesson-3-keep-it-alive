@@ -291,20 +291,20 @@ Tell the user (keep it brief):
 
 ### Step 10: Test with Short Timeout
 
-Tell user: "Let's test with a 2-minute timeout so we can watch the full lifecycle."
+Tell user: "Let's test with a 3-minute timeout so we can watch the full lifecycle."
 
 #### 10a: Set test timeout
 
 Add `max_session_seconds` to config.json:
 ```json
 {
-  "max_session_seconds": 120,
+  "max_session_seconds": 180,
   "startup_delay": 3,
   "crons": [...]
 }
 ```
 
-Tell user: "I've set the session timeout to 2 minutes for testing."
+Tell user: "I've set the session timeout to 3 minutes for testing."
 
 #### 10b: Generate and load launchd config
 
@@ -334,7 +334,7 @@ Also tell them: "Detach without killing by pressing Ctrl+B then D"
 
 #### 10d: Watch the lifecycle
 
-Tell user: "Now we wait 2 minutes for the timeout. When it fires:
+Tell user: "Now we wait 3 minutes for the timeout. When it fires:
 1. The tmux session will die
 2. launchd will restart it within seconds
 3. A new tmux session will appear

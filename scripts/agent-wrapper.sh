@@ -74,7 +74,7 @@ fi
 
 # --- Session config ---
 # Default 71 hours (255600s). /loop crons expire at 72h, so restart 1h before.
-# Set "max_session_seconds" in config.json for testing (e.g. 120)
+# Set "max_session_seconds" in config.json for testing (e.g. 180)
 CONFIG_FILE="${PROJECT_DIR}/config.json"
 MAX_SESSION=$(jq -r '.max_session_seconds // 255600' "${CONFIG_FILE}" 2>/dev/null || echo "255600")
 
